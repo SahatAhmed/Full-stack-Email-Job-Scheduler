@@ -1,0 +1,104 @@
+// Prisma schema file
+// https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  googleId  String   @unique
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailBatches EmailBatch[]
+  senders      Sender[]
+
+  @@map("users")
+}
+
+model Sender {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailJobs EmailJob[] // ✅ now properly linked
+
+  @@unique([userId, email])
+  @@map("senders")
+}
+
+model EmailBatch {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject        String
+  body           String
+  senderEmail    String?
+  startTime      DateTime
+  delayBetweenMs Int      @default(2000)
+  hourlyLimit    Int      @default(200)
+  totalEmails    Int
+  sentCount      Int      @default(0)
+  failedCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  emailJobs EmailJob[]
+
+  @@index([userId])
+  @@index([startTime])
+  @@map("email_batches")
+}
+
+model EmailJob {
+  id String @id @default(cuid())
+
+  // 🔗 Batch relation
+  batchId String
+  batch   EmailBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  // 🔗 Sender relation (NEW)
+  senderId String?
+  sender   Sender? @relation(fields: [senderId], references: [id], onDelete: SetNull)
+
+  senderEmail    String
+  recipientEmail String
+  subject        String
+  body           String
+
+  userId       String
+  status       EmailStatus @default(PENDING)
+  errorMessage String?
+  sentTime     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([batchId])
+  @@index([senderId])
+  @@index([senderEmail])
+  @@index([userId])
+  @@index([status])
+  @@index([sentTime])
+  @@map("email_jobs")
+}
+
+enum EmailStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
