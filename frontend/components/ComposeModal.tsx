@@ -50,9 +50,7 @@ type Attachment = {
 };
 
 export function ComposeModal({ isOpen, onClose }: ComposeModalProps) {
-  /* =======================
-       REFS & STATE
-   ======================== */
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,10 +79,6 @@ export function ComposeModal({ isOpen, onClose }: ComposeModalProps) {
     ? sendersData 
     : (sendersData?.senders || []);
 
-  /* =======================
-       EFFECTS
-   ======================== */
-
   // Initialize schedule date to tomorrow 9AM
   useEffect(() => {
     const tomorrow = new Date();
@@ -103,10 +97,6 @@ export function ComposeModal({ isOpen, onClose }: ComposeModalProps) {
   }, [attachments]);
 
   if (!isOpen) return null;
-
-  /* =======================
-       LOGIC HELPERS
-   ======================== */
 
   const getScheduleOptions = (): ScheduleOption[] => {
     const tomorrow = new Date();
@@ -194,9 +184,6 @@ export function ComposeModal({ isOpen, onClose }: ComposeModalProps) {
     }
   };
 
-  /* =======================
-       RENDER
-   ======================== */
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col font-sans animate-in fade-in duration-200">
