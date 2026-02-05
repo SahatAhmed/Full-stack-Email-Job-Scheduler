@@ -167,7 +167,7 @@ Complete visual diagrams showing how the system works.
 **Ready to schedule emails at scale!** Start with the Quick Start section above.
 
 
-![Demo Screenshot](assets/)
+
 
 
 Thank you for reviewing my project!
